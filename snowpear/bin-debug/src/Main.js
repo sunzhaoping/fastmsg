@@ -10,14 +10,14 @@ var __extends = this.__extends || function (d, b) {
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *
- *     * Redistributions of source code must retain the above copyright
- *       notice, this list of conditions and the following disclaimer.
- *     * Redistributions in binary form must reproduce the above copyright
- *       notice, this list of conditions and the following disclaimer in the
- *       documentation and/or other materials provided with the distribution.
- *     * Neither the name of the Egret-Labs.org nor the
- *       names of its contributors may be used to endorse or promote products
- *       derived from this software without specific prior written permission.
+ *	 * Redistributions of source code must retain the above copyright
+ *	   notice, this list of conditions and the following disclaimer.
+ *	 * Redistributions in binary form must reproduce the above copyright
+ *	   notice, this list of conditions and the following disclaimer in the
+ *	   documentation and/or other materials provided with the distribution.
+ *	 * Neither the name of the Egret-Labs.org nor the
+ *	   names of its contributors may be used to endorse or promote products
+ *	   derived from this software without specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY EGRET-LABS.ORG AND CONTRIBUTORS "AS IS" AND ANY
  * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
@@ -109,22 +109,21 @@ var Main = (function (_super) {
             return;
         this.gameState = "r";
         this.startButton.visible = false;
-        this.txt.text = "点鸡！";
         var json = JSON.parse(data);
         for (var i = 0; i < this.stageAnimals.length; i++)
             this.removeChild(this.stageAnimals[i]);
-        console.log(data);
+        var iTarget = Math.floor(Math.random() * 30) % 3;
+        this.txt.text = "which animal is " + json.animals[iTarget];
         this.stageAnimals.length = 0;
-        this.stageAnimals.push(this.createAnimalByName(json.animals[0], json.x[0], json.y[0]));
-        this.stageAnimals.push(this.createAnimalByName(json.animals[1], json.x[1], json.y[1]));
-        this.stageAnimals.push(this.createAnimalByName(json.animals[2], json.x[2], json.y[2]));
+        this.stageAnimals.push(this.createAnimalByName(json.animals[0], json.x[0], json.y[0], iTarget == 0));
+        this.stageAnimals.push(this.createAnimalByName(json.animals[1], json.x[1], json.y[1], iTarget == 1));
+        this.stageAnimals.push(this.createAnimalByName(json.animals[2], json.x[2], json.y[2], iTarget == 2));
     };
     Main.prototype.gameend = function (data) {
         if (this.gameState == "e")
             return;
         this.gameState = "e";
         var json = JSON.parse(data);
-        var title = "游戏结果";
         var text = json.uid + "赢了!";
         this.txt.text = text;
         this.startButton.visible = true;
@@ -149,8 +148,8 @@ var Main = (function (_super) {
         RES.loadConfig("resource/resource.json", "resource/");
     };
     /**
-     * 配置文件加载完成,开始预加载preload资源组。
-     */
+    * 配置文件加载完成,开始预加载preload资源组。
+    */
     Main.prototype.onConfigComplete = function (event) {
         RES.removeEventListener(RES.ResourceEvent.CONFIG_COMPLETE, this.onConfigComplete, this);
         RES.addEventListener(RES.ResourceEvent.GROUP_COMPLETE, this.onResourceLoadComplete, this);
@@ -158,8 +157,8 @@ var Main = (function (_super) {
         RES.loadGroup("preload");
     };
     /**
-     * preload资源组加载完成
-     */
+    * preload资源组加载完成
+    */
     Main.prototype.onResourceLoadComplete = function (event) {
         if (event.groupName == "preload") {
             this.stage.removeChild(this.loadingView);
@@ -170,8 +169,8 @@ var Main = (function (_super) {
         }
     };
     /**
-     * preload资源组加载进度
-     */
+    * preload资源组加载进度
+    */
     Main.prototype.onResourceProgress = function (event) {
         if (event.groupName == "preload") {
             this.loadingView.setProgress(event.itemsLoaded, event.itemsTotal);
@@ -195,10 +194,9 @@ var Main = (function (_super) {
     };
     Main.prototype.onGameStartTap = function (evt) {
         this.animals = this.shuffle(this.animals);
-        var animals_target = this.animals.slice(0, 2);
-        animals_target.push("chicken");
+        var animals_target = this.animals.slice(0, 3);
         var animals_select = this.shuffle(animals_target);
-        var json = { "uid": this.params["uid"], "animals": animals_select, "x": [240, 240, 240], "y": [100, 260, 420] };
+        var json = { "uid": this.params["uid"], "animals": animals_select, "x": [160, 320, 480], "y": [320, 320, 320] };
         var jsonstr = JSON.stringify(json);
         this.socket.broadcast("gamestart", jsonstr);
         this.gamestart(jsonstr);
@@ -234,26 +232,27 @@ var Main = (function (_super) {
     };
     Main.prototype.drawText = function () {
         this.txt = new egret.TextField();
-        this.txt.size = 12;
-        this.txt.x = 10;
-        this.txt.y = 10;
-        this.txt.width = 200;
-        this.txt.height = 200;
+        this.txt.size = 24;
+        this.txt.x = 0;
+        this.txt.y = 100;
+        this.txt.width = 640;
+        this.txt.height = 100;
         this.txt.text = "";
+        this.txt.textAlign = egret.HorizontalAlign.CENTER;
         this.txt.textColor = 0xff0000;
         this.addChild(this.txt);
     };
     /**
-     * 根据name关键字创建一个Bitmap对象。name属性请参考resources/resource.json配置文件的内容。
-     */
+    * 根据name关键字创建一个Bitmap对象。name属性请参考resources/resource.json配置文件的内容。
+    */
     Main.prototype.createBitmapByName = function (name) {
         var result = new egret.Bitmap();
         var texture = RES.getRes(name);
         result.texture = texture;
         return result;
     };
-    Main.prototype.createAnimalByName = function (name, x, y) {
-        var result = new Animal(name, this, x, y);
+    Main.prototype.createAnimalByName = function (name, x, y, isTarget) {
+        var result = new Animal(name, this, x, y, isTarget);
         this.addChild(result);
         return result;
     };
