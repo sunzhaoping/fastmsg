@@ -124,12 +124,13 @@ class Main extends egret.DisplayObjectContainer{
 		var json = JSON.parse(data);
 		for(var i = 0 ; i < this.stageAnimals.length; i++)
 			this.removeChild(this.stageAnimals[i]);
-		var iTarget = Math.floor(Math.random() * 30) % 3
-		this.txt.text = "which animal is "+ json.animals[iTarget]
+		for(var i = 0 ; i< 3; i++)
+			if(json.animals[i])
+				this.txt.text = "which animal is "+ json.animals[i];
 		this.stageAnimals.length = 0;
-		this.stageAnimals.push(this.createAnimalByName(json.animals[0], json.x[0], json.y[0],iTarget == 0 ));
-		this.stageAnimals.push(this.createAnimalByName(json.animals[1], json.x[1], json.y[1],iTarget == 1));
-		this.stageAnimals.push(this.createAnimalByName(json.animals[2], json.x[2], json.y[2],iTarget == 2));
+		this.stageAnimals.push(this.createAnimalByName(json.animals[0], json.x[0], json.y[0],json.iTarget[0]));
+		this.stageAnimals.push(this.createAnimalByName(json.animals[1], json.x[1], json.y[1],json.iTarget[1]));
+		this.stageAnimals.push(this.createAnimalByName(json.animals[2], json.x[2], json.y[2],json.iTarget[2]));
 	}
 
 
@@ -138,7 +139,7 @@ class Main extends egret.DisplayObjectContainer{
 			return;
 		this.gameState = "e";
 		var json = JSON.parse(data);
-		var text:string = json.uid + "赢了!";
+		var text:string = json.uid + " win!";
 		this.txt.text = text;
 		this.startButton.visible = true;
 	}
@@ -223,7 +224,8 @@ class Main extends egret.DisplayObjectContainer{
 		this.animals = this.shuffle(this.animals);
 		var animals_target:string[] = this.animals.slice(0,3);
 		var animals_select = this.shuffle(animals_target);
-		var json = {"uid":this.params["uid"], "animals": animals_select, "x":[160,320,480] , "y" : [320, 320, 320]};
+		var iTarget = Math.floor(Math.random() * 30) % 3
+		var json = {"uid":this.params["uid"], "animals": animals_select, "x":[160,320,480] , "y" : [320, 320, 320], "iTarget":[iTarget==0, iTarget==1, iTarget==2]};
 		var jsonstr = JSON.stringify(json);
 		this.socket.broadcast("gamestart", jsonstr);
 		this.gamestart(jsonstr);
