@@ -1,0 +1,33 @@
+{
+"resources":
+	[
+		{"name":"start" ,"type":"image","url":"assets/start.png"},
+		{"name":"bear" ,"type":"image","url":"assets/bear.svg.med.png"},
+		{"name":"beaver" ,"type":"image","url":"assets/beaver.svg.med.png"},
+		{"name":"cat" ,"type":"image","url":"assets/cat.svg.med.png"},
+		{"name":"chicken" ,"type":"image","url":"assets/chicken.svg.med.png"},
+		{"name":"cow" ,"type":"image","url":"assets/cow.svg.med.png"},
+		{"name":"dog" ,"type":"image","url":"assets/dog.svg.med.png"},
+		{"name":"elephant" ,"type":"image","url":"assets/elephant.svg.med.png"},
+		{"name":"elk" ,"type":"image","url":"assets/elk.svg.med.png"},
+		{"name":"ghost" ,"type":"image","url":"assets/ghost.svg.med.png"},
+		{"name":"giraffe" ,"type":"image","url":"assets/giraffe.svg.med.png"},
+		{"name":"gnu" ,"type":"image","url":"assets/gnu.svg.med.png"},
+		{"name":"goat" ,"type":"image","url":"assets/goat.svg.med.png"},
+		{"name":"hippo" ,"type":"image","url":"assets/hippo.svg.med.png"},
+		{"name":"kangaroo" ,"type":"image","url":"assets/kangaroo.svg.med.png"},
+		{"name":"monkey" ,"type":"image","url":"assets/monkey.svg.med.png"},
+		{"name":"mouse" ,"type":"image","url":"assets/mouse.svg.med.png"},
+		{"name":"owl" ,"type":"image","url":"assets/owl.svg.med.png"},
+		{"name":"penguin" ,"type":"image","url":"assets/penguin.svg.med.png"},
+		{"name":"pig" ,"type":"image","url":"assets/pig.svg.med.png"},
+		{"name":"sheep" ,"type":"image","url":"assets/sheep.svg.med.png"},
+		{"name":"squirrel" ,"type":"image","url":"assets/squirrel.svg.med.png"},
+		{"name":"zebra" ,"type":"image","url":"assets/zebra.svg.med.png"}
+	],
+
+"groups":
+	[
+		{"name":"preload","keys":"start,bear,beaver,cat,chicken,cow,dog,elephant,elk,ghost,giraffe,gnu,goat,hippo,kangaroo,monkey,mouse,owl,penguin,pig,sheep,squirrel,zebra"}
+	]
+}
