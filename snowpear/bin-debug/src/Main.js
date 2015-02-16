@@ -39,6 +39,12 @@ var Main = (function (_super) {
         this.animals = ["bear", "beaver", "cat", "cow", "dog", "elephant", "elk", "ghost", "giraffe", "gnu", "goat", "hippo", "kangaroo", "monkey", "mouse", "owl", "penguin", "pig", "sheep", "squirrel", "zebra"];
         this.gameState = "";
         this.stageAnimals = [];
+        this.start_time = 5;
+        this.master_uid = "";
+        this.current_targert = "";
+        this.current_winner = "";
+        this.current_wintime = 0;
+        this.current_select = 0;
         this.params = this.GetRequest();
         if (this.params["uid"] == "1")
             this.color_define = 0xff0000;
@@ -53,10 +59,8 @@ var Main = (function (_super) {
         this.socket.on('leave', this.onLeave.bind(this));
         this.socket.on('gamestart', this.gamestart.bind(this));
         this.socket.on('gameend', this.gameend.bind(this));
-        this.socket.on('taped', this.taped.bind(this));
-        this.socket.on('touchbegin', this.touchbegin.bind(this));
-        this.socket.on('touchmove', this.touchmove.bind(this));
-        this.socket.on('touchend', this.touchend.bind(this));
+        this.socket.on('selectAnimal', this.selectAnimal.bind(this));
+        this.socket.on('timeminus', this.timeminus.bind(this));
         this.addEventListener(egret.Event.ADDED_TO_STAGE, this.onAddToStage, this);
     }
     Main.prototype.GetRequest = function () {
@@ -98,48 +102,71 @@ var Main = (function (_super) {
         this.uids.push(data);
         console.log(data.toString() + " join");
     };
+    Main.prototype.logintime = function (data) {
+        var json = JSON.parse(data);
+    };
     Main.prototype.onLeave = function (data) {
         var i = this.uids.indexOf(data);
         if (i >= 0)
             this.uids.slice(i, 1);
         console.log(data.toString() + " leave");
     };
+    Main.prototype.timeminus = function (data) {
+        this.startButton.visible = false;
+        var json = JSON.parse(data);
+        this.txt.text = "game will start at " + json["time"] + " seconds";
+    };
     Main.prototype.gamestart = function (data) {
         if (this.gameState == "r")
             return;
         this.gameState = "r";
-        this.startButton.visible = false;
         console.log(data);
         var json = JSON.parse(data);
+        this.master_uid = json.uid;
         for (var i = 0; i < this.stageAnimals.length; i++)
             this.removeChild(this.stageAnimals[i]);
-        for (var i = 0; i < 3; i++)
-            if (json.iTarget[i])
-                this.txt.text = "which animal is " + json.animals[i];
+        for (var i = 0; i < 3; i++) {
+            if (json.iTarget[i]) {
+                this.txt.text = "which animal is " + json.animals[i] + "?\n";
+                this.current_targert = json.animals[i];
+            }
+        }
+        this.current_winner = "";
+        this.current_wintime = 0;
+        this.current_select = 0;
         this.stageAnimals.length = 0;
         this.stageAnimals.push(this.createAnimalByName(json.animals[0], json.x[0], json.y[0], json.iTarget[0]));
         this.stageAnimals.push(this.createAnimalByName(json.animals[1], json.x[1], json.y[1], json.iTarget[1]));
         this.stageAnimals.push(this.createAnimalByName(json.animals[2], json.x[2], json.y[2], json.iTarget[2]));
     };
     Main.prototype.gameend = function (data) {
-        if (this.gameState == "e")
+        if (this.gameState != "r")
             return;
         this.gameState = "e";
         var json = JSON.parse(data);
-        var text = json.uid + " win!";
-        this.txt.text = text;
-        this.startButton.visible = true;
+        var text = json.uid + " win!\n";
+        this.txt.text += text;
     };
-    Main.prototype.taped = function (data) {
-    };
-    Main.prototype.touchbegin = function (data) {
+    Main.prototype.selectAnimal = function (data) {
+        if (this.gameState == "e" || this.gameState == "w")
+            return;
+        this.gameState = "w";
         var json = JSON.parse(data);
-    };
-    Main.prototype.touchmove = function (data) {
-        var json = JSON.parse(data);
-    };
-    Main.prototype.touchend = function (data) {
-        var json = JSON.parse(data);
+        var text = json.uid + " select " + json.animal + "\n";
+        this.current_select++;
+        if (this.master_uid == this.params["uid"]) {
+            if (json.animal == this.current_targert && (this.current_wintime == 0 || this.current_wintime > json.time)) {
+                this.current_winner = json.uid;
+                this.current_wintime = json.time;
+            }
+            if (this.current_select >= this.uids.length) {
+                var json = { "uid": this.current_winner };
+                var jsonstr = JSON.stringify(json);
+                this.socket.broadcast("gameend", jsonstr);
+                this.gameend(jsonstr);
+            }
+        }
+        this.txt.text += text;
     };
     Main.prototype.onAddToStage = function (event) {
         //设置加载进度界面
@@ -181,6 +208,15 @@ var Main = (function (_super) {
     /**
     * 创建游戏场景
     */
+    Main.prototype.createStartTimer = function () {
+        var stageW = this.stage.stageWidth;
+        var stageH = this.stage.stageHeight;
+        this.start_time = 5;
+        var timer = new egret.Timer(1000, 5);
+        timer.addEventListener(egret.TimerEvent.TIMER, this.timerFunc, this);
+        timer.addEventListener(egret.TimerEvent.TIMER_COMPLETE, this.onGameStart, this);
+        timer.start();
+    };
     Main.prototype.createStartButton = function () {
         var stageW = this.stage.stageWidth;
         var stageH = this.stage.stageHeight;
@@ -188,21 +224,32 @@ var Main = (function (_super) {
         start_png.anchorX = start_png.anchorY = 0.5;
         this.startButton = new egret.Sprite();
         this.startButton.addChild(start_png);
-        this.startButton.x = 80;
-        this.startButton.y = 80;
+        this.startButton.x = 320;
+        this.startButton.y = 480;
         this.addChild(this.startButton);
         this.startButton.touchEnabled = true;
-        this.startButton.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onGameStartTap, this);
+        this.startButton.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onGameStartButtonTap, this);
     };
-    Main.prototype.onGameStartTap = function (evt) {
+    Main.prototype.timerFunc = function () {
+        this.start_time--;
+        var json = { "uid": this.params["uid"], "time": this.start_time };
+        var jsonstr = JSON.stringify(json);
+        this.socket.broadcast("timeminus", jsonstr);
+        this.timeminus(jsonstr);
+    };
+    Main.prototype.onGameStart = function () {
         this.animals = this.shuffle(this.animals);
         var animals_target = this.animals.slice(0, 3);
         var animals_select = this.shuffle(animals_target);
         var iTarget = Math.floor(Math.random() * 30) % 3;
-        var json = { "uid": this.params["uid"], "animals": animals_select, "x": [160, 320, 480], "y": [320, 320, 320], "iTarget": [iTarget == 0, iTarget == 1, iTarget == 2] };
+        var json = { "uid": this.params["uid"], "animals": animals_select, "x": [160, 320, 480], "y": [480, 480, 480], "iTarget": [iTarget == 0, iTarget == 1, iTarget == 2] };
         var jsonstr = JSON.stringify(json);
         this.socket.broadcast("gamestart", jsonstr);
         this.gamestart(jsonstr);
+    };
+    Main.prototype.onGameStartButtonTap = function (evt) {
+        this.master_uid = this.params["uid"];
+        this.createStartTimer();
     };
     /**
         * 创建游戏场景
@@ -211,27 +258,6 @@ var Main = (function (_super) {
         var stageW = this.stage.stageWidth;
         var stageH = this.stage.stageHeight;
         this.animals = this.shuffle(this.animals);
-    };
-    Main.prototype.onTouchTap = function (evt) {
-        this.socket.broadcast("taped", this.params["uid"]);
-    };
-    Main.prototype.onTouchBegin = function (evt) {
-        var json = { "uid": this.params["uid"], "localX": evt.localX, "localY": evt.localY, "color": this.color_define };
-        var jsonstr = JSON.stringify(json);
-        this.socket.broadcast("touchbegin", jsonstr);
-        this.touchbegin(jsonstr);
-    };
-    Main.prototype.onTouchMove = function (evt) {
-        var json = { "uid": this.params["uid"], "localX": evt.localX, "localY": evt.localY, "color": this.color_define };
-        var jsonstr = JSON.stringify(json);
-        this.socket.broadcast("touchmove", jsonstr);
-        this.touchmove(jsonstr);
-    };
-    Main.prototype.onTouchEnd = function (evt) {
-        var json = { "uid": this.params["uid"], "localX": evt.localX, "localY": evt.localY, "color": this.color_define };
-        var jsonstr = JSON.stringify(json);
-        this.socket.broadcast("touchend", jsonstr);
-        this.touchend(jsonstr);
     };
     Main.prototype.drawText = function () {
         this.txt = new egret.TextField();

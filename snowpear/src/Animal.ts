@@ -24,14 +24,18 @@ class Animal extends egret.Sprite{
 		this.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onAnimalSelect, this);
 	}
 
+
 	private onAnimalSelect( evt: egret.TouchEvent )
 	{
-		if(this.isTarget){
-			var json = {"uid":this.root_main.params["uid"]};
-			var jsonstr = JSON.stringify(json);
-			this.root_main.socket.broadcast("gameend", jsonstr);
-			this.root_main.gameend(jsonstr);
+		if(this.root_main.gameState != "r"){
+			return;
 		}
+		var time = new Date().getTime();
+		var json = {"uid":this.root_main.params["uid"],"animal":this.animal_name,"time":time};
+		var jsonstr = JSON.stringify(json);
+		egret.Tween.get(this).to({alpha:0.2},100);
+		this.root_main.socket.broadcast("selectAnimal", jsonstr);
+		this.root_main.selectAnimal(jsonstr);
 	}
 
 }
