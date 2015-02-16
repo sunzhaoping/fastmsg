@@ -150,8 +150,9 @@ var Main = (function (_super) {
     Main.prototype.selectAnimal = function (data) {
         if (this.gameState == "e" || this.gameState == "w")
             return;
-        this.gameState = "w";
         var json = JSON.parse(data);
+        if (json.uid == this.params["uid"])
+            this.gameState == "w";
         var text = json.uid + " select " + json.animal + "\n";
         this.current_select++;
         if (this.master_uid == this.params["uid"]) {
