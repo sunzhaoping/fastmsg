@@ -121,10 +121,11 @@ class Main extends egret.DisplayObjectContainer{
 			return;
 		this.gameState = "r";
 		this.startButton.visible = false;
+		console.log(data);
 		var json = JSON.parse(data);
 		for(var i = 0 ; i < this.stageAnimals.length; i++)
 			this.removeChild(this.stageAnimals[i]);
-		for(var i = 0 ; i< 3; i++)
+		for(var i = 0 ; i <3; i++)
 			if(json.animals[i])
 				this.txt.text = "which animal is "+ json.animals[i];
 		this.stageAnimals.length = 0;

@@ -109,6 +109,7 @@ var Main = (function (_super) {
             return;
         this.gameState = "r";
         this.startButton.visible = false;
+        console.log(data);
         var json = JSON.parse(data);
         for (var i = 0; i < this.stageAnimals.length; i++)
             this.removeChild(this.stageAnimals[i]);
