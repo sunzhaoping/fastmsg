@@ -114,7 +114,7 @@ var Main = (function (_super) {
         for (var i = 0; i < this.stageAnimals.length; i++)
             this.removeChild(this.stageAnimals[i]);
         for (var i = 0; i < 3; i++)
-            if (json.animals[i])
+            if (json.iTarget[i])
                 this.txt.text = "which animal is " + json.animals[i];
         this.stageAnimals.length = 0;
         this.stageAnimals.push(this.createAnimalByName(json.animals[0], json.x[0], json.y[0], json.iTarget[0]));
