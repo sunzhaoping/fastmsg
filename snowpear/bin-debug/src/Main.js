@@ -155,6 +155,7 @@ var Main = (function (_super) {
             this.gameState == "w";
         var text = json.uid + " select " + json.animal + "\n";
         this.current_select++;
+        this.txt.text += text;
         if (this.master_uid == this.params["uid"]) {
             if (json.animal == this.current_targert && (this.current_wintime == 0 || this.current_wintime > json.time)) {
                 this.current_winner = json.uid;
@@ -167,7 +168,6 @@ var Main = (function (_super) {
                 this.gameend(jsonstr);
             }
         }
-        this.txt.text += text;
     };
     Main.prototype.onAddToStage = function (event) {
         //设置加载进度界面

@@ -171,6 +171,7 @@ class Main extends egret.DisplayObjectContainer{
 			this.gameState == "w"
 		var text:string = json.uid + " select " + json.animal + "\n";
 		this.current_select++;
+		this.txt.text += text;
 		if(this.master_uid == this.params["uid"]){
 			if(json.animal == this.current_targert && (this.current_wintime == 0 || this.current_wintime > json.time)){
 				this.current_winner = json.uid;
@@ -183,7 +184,6 @@ class Main extends egret.DisplayObjectContainer{
 				this.gameend(jsonstr);
 			}
 		}
-		this.txt.text += text;
 	}
 	
 	private onAddToStage(event:egret.Event){
