@@ -172,11 +172,8 @@ class Main extends egret.DisplayObjectContainer{
 
 
 	public gameend(data){
-		if(this.gameState != "r")
-			return;
 		this.gameState = "e";
 		var json = JSON.parse(data);
-		
 		var text:string = "";
 		if (json.uid != "" ) text = json.uid + " win!\n";
 		this.txt.text += text;

@@ -155,8 +155,6 @@ var Main = (function (_super) {
         this.stageAnimals.push(this.createAnimalByName(json.animals[2], json.x[2], json.y[2], json.iTarget[2]));
     };
     Main.prototype.gameend = function (data) {
-        if (this.gameState != "r")
-            return;
         this.gameState = "e";
         var json = JSON.parse(data);
         var text = "";
