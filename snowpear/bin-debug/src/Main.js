@@ -135,7 +135,6 @@ var Main = (function (_super) {
         if (this.gameState == "r")
             return;
         this.gameState = "r";
-        console.log(data);
         var json = JSON.parse(data);
         this.uids = json.uids;
         console.log(this.uids);
@@ -168,8 +167,6 @@ var Main = (function (_super) {
             this.createStartTimer();
     };
     Main.prototype.selectAnimal = function (data) {
-        if (this.gameState == "e" || this.gameState == "w")
-            return;
         var json = JSON.parse(data);
         if (json.uid == this.params["uid"])
             this.gameState = "w";

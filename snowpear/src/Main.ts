@@ -150,7 +150,6 @@ class Main extends egret.DisplayObjectContainer{
 		if(this.gameState == "r")
 			return;
 		this.gameState = "r";
-		console.log(data);
 		var json = JSON.parse(data);
 		this.uids = json.uids;
 		console.log(this.uids);
@@ -186,8 +185,6 @@ class Main extends egret.DisplayObjectContainer{
 	}
 
 	public selectAnimal(data){
-		if(this.gameState == "e" || this.gameState == "w")
-			return;
 		var json = JSON.parse(data);
 		if(json.uid == this.params["uid"])
 			this.gameState = "w"
