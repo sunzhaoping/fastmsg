@@ -6,6 +6,7 @@ import logging
 import socket
 import tornado
 import zmq
+from db.dbwrapper import MemcacheClient
 from tornado import gen
 from tornado.options import define, options, parse_command_line
 from tornado.web import Application as BaseApplication
@@ -29,6 +30,7 @@ class ChannelHandler(SockJSConnection):
     def on_close(self):
         self.unsub(self.channel)
         self.channel_emit(self.channel, "leave" , self.uid)
+        self.remove_uid(self.channel,self.uid)
 
     @gen.coroutine
     def on_message(self, msg):
@@ -63,8 +65,46 @@ class ChannelHandler(SockJSConnection):
         self.unsub(self.channel);
         self.sub(channel);
         self.channel_emit(self.channel, "leave" , self.uid)
+        self.remove_uid(self.channel,self.uid)
         self.channel = channel;
-        self.channel_emit(self.channel, "join"  , self.uid)
+        self.channel_emit(self.channel, "join" ,self.uid)
+        self.add_uid(self.channel,self.uid)
+        
+    def get_uids(self, channel):
+        key = "fmsg|chl|%s" % (channel)
+        return self.get_data(key)
+
+    def add_uid(self, channel, uid):
+        key = "fmsg|chl|%s" % (channel)
+        uids = self.get_data(key)
+        if not uids:
+            uids = []
+        if uid not in uids:
+            uids.append(uid)
+        self.set_data(key, uids)
+        return uids
+
+    def remove_uid(self, channel, uid):
+        key = "fmsg|chl|%s" % (channel)
+        uids = self.get_data(key)
+        if not uids:
+            uids = []
+        if uid in uids:
+            uids.remove(uid)
+        if uids:
+            self.set_data(key, uids)
+        else:
+            self.delete_data(key)
+        return uids
+
+    def set_data(self, key, value):
+        return ChannelHandler.data_client.set(key, value)
+
+    def delete_data(self, key):
+        return ChannelHandler.data_client.delete(key)
+        
+    def get_data(self, key):
+        return ChannelHandler.data_client.get(key)
 
     def sub(self, channel):
         channels = ChannelHandler.channels.get(channel,[])
@@ -111,6 +151,7 @@ class ChannelHandler(SockJSConnection):
 
     @classmethod
     def setup_master(cls,server):
+        cls.data_client = MemcacheClient(options.memcached,0);
         cls.server_id = shortuuid.uuid();
         cls.server = server
         cls.context = zmq.Context(8)
@@ -125,6 +166,7 @@ class ChannelHandler(SockJSConnection):
                 cls.ventilator.connect(v)
 
 define("v_host", default="", help="ventilator host", type=str)
+define("memcached", default="127.0.0.1:11211", help="memcached settigns", type=str)
 define("s_host", default="tcp://127.0.0.1:1991", help="sink host", type=str)
 define("host", default="0.0.0.0", help="bind host", type=str)
 define("port", default=10080, help="bind port", type=int)

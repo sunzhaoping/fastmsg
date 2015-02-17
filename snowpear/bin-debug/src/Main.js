@@ -44,6 +44,7 @@ var Main = (function (_super) {
         this.current_winner = "";
         this.current_wintime = 0;
         this.current_select = 0;
+        this.show_start = true;
         this.params = this.GetRequest();
         if (this.params["uid"] == "1")
             this.color_define = 0xff0000;
@@ -52,6 +53,7 @@ var Main = (function (_super) {
         if (this.params["uid"] == "2")
             this.color_define = 0x0000ff;
         this.socket = new Socket("/fastmsg/endpoint");
+        this.startButton = new egret.Sprite();
         this.socket.on('connect', this.onConnect.bind(this));
         this.socket.on('login', this.onLogin.bind(this));
         this.socket.on('join', this.onJoin.bind(this));
@@ -64,6 +66,7 @@ var Main = (function (_super) {
         this.addEventListener(egret.Event.ADDED_TO_STAGE, this.onAddToStage, this);
         this.alive_timer = new egret.Timer(1000, 0);
         this.alive_timer.addEventListener(egret.TimerEvent.TIMER, this.onAliveMessage, this);
+        this.show_start = true;
     }
     Main.prototype.GetRequest = function () {
         var url = location.search; //获取url中"?"符后的字串
@@ -97,16 +100,15 @@ var Main = (function (_super) {
     };
     Main.prototype.onLogin = function (data) {
         if (this.params["channel"]) {
-            this.socket.emit("join", this.params["channel"]);
             this.alive_timer.start();
         }
     };
     Main.prototype.alive = function (data) {
-        var i = this.uids.indexOf(data);
-        if (i < 0) {
-            this.uids.push(data);
-            if (data == this.params["uid"])
-                this.socket.emit("join", this.params["channel"]);
+        var json = JSON.parse(data);
+        if (json.length > 0) {
+            if (json[0] == this.params["uid"] && this.show_start) {
+                this.createStartButton();
+            }
         }
     };
     Main.prototype.onJoin = function (data) {
@@ -212,7 +214,6 @@ var Main = (function (_super) {
             RES.removeEventListener(RES.ResourceEvent.GROUP_COMPLETE, this.onResourceLoadComplete, this);
             RES.removeEventListener(RES.ResourceEvent.GROUP_PROGRESS, this.onResourceProgress, this);
             this.drawText();
-            this.createStartButton();
         }
     };
     /**
@@ -240,16 +241,18 @@ var Main = (function (_super) {
         var stageH = this.stage.stageHeight;
         var start_png = this.createBitmapByName("start");
         start_png.anchorX = start_png.anchorY = 0.5;
-        this.startButton = new egret.Sprite();
         this.startButton.addChild(start_png);
         this.startButton.x = 320;
         this.startButton.y = 480;
         this.addChild(this.startButton);
         this.startButton.touchEnabled = true;
+        this.show_start = false;
         this.startButton.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onGameStartButtonTap, this);
     };
     Main.prototype.onAliveMessage = function () {
-        this.socket.broadcast("alive", this.params["uid"]);
+        var json = { "uid": this.params["uid"], "channel": this.params["channel"] };
+        var jsonstr = JSON.stringify(json);
+        this.socket.emit("alive", jsonstr);
     };
     Main.prototype.timerFunc = function () {
         this.start_time--;
@@ -297,7 +300,7 @@ var Main = (function (_super) {
         this.txttimer.y = 50;
         this.txttimer.width = 640;
         this.txttimer.height = 100;
-        this.txttimer.text = "";
+        this.txttimer.text = "waiting for game start...";
         this.txttimer.textAlign = egret.HorizontalAlign.CENTER;
         this.txttimer.textColor = 0x0000ff;
         this.addChild(this.txttimer);

@@ -43,6 +43,7 @@ class Main extends egret.DisplayObjectContainer{
 	private current_wintime:number = 0;
 	private current_select:number = 0;
 	private alive_timer:egret.Timer;
+	private show_start:boolean = true;
 	private GetRequest(): Object{
 		var url = location.search; //获取url中"?"符后的字串
 		var theRequest:Object = new Object();
@@ -85,6 +86,7 @@ class Main extends egret.DisplayObjectContainer{
 		if(this.params["uid"] == "2")
 			this.color_define = 0x0000ff;
 		this.socket = new Socket("/fastmsg/endpoint");
+		this.startButton = new egret.Sprite();
 		this.socket.on('connect', this.onConnect.bind(this));
 		this.socket.on('login', this.onLogin.bind(this));
 		this.socket.on('join', this.onJoin.bind(this));
@@ -97,7 +99,7 @@ class Main extends egret.DisplayObjectContainer{
 		this.addEventListener(egret.Event.ADDED_TO_STAGE,this.onAddToStage,this);
 		this.alive_timer = new egret.Timer(1000,0);
 		this.alive_timer.addEventListener(egret.TimerEvent.TIMER,this.onAliveMessage,this);
-		
+		this.show_start = true;
 	}
 	
 	
@@ -108,17 +110,16 @@ class Main extends egret.DisplayObjectContainer{
 	
 	private onLogin(data){
 		if (this.params["channel"]){
-			this.socket.emit("join", this.params["channel"]);
 			this.alive_timer.start();
 		}
 	}
 	
 	private alive(data){
-		var i : number = this.uids.indexOf(data);
-		if(i < 0){
-			this.uids.push(data);
-			if(data == this.params["uid"])
-				this.socket.emit("join", this.params["channel"]);
+		var json = JSON.parse(data);
+		if(json.length > 0){
+			if(json[0] == this.params["uid"] && this.show_start){
+				this.createStartButton()
+			}
 		}
 	}
 
@@ -233,7 +234,6 @@ class Main extends egret.DisplayObjectContainer{
 			RES.removeEventListener(RES.ResourceEvent.GROUP_COMPLETE,this.onResourceLoadComplete,this);
 			RES.removeEventListener(RES.ResourceEvent.GROUP_PROGRESS,this.onResourceProgress,this);
 			this.drawText();
-			this.createStartButton();
 		}
 	}
 
@@ -266,18 +266,20 @@ class Main extends egret.DisplayObjectContainer{
 		var stageH:number = this.stage.stageHeight;
 		var start_png:egret.Bitmap = this.createBitmapByName("start");
 		start_png.anchorX = start_png.anchorY = 0.5;
-		this.startButton = new egret.Sprite();
 		this.startButton.addChild(start_png);
 		this.startButton.x = 320;
 		this.startButton.y = 480;
 		this.addChild(this.startButton);
 		this.startButton.touchEnabled = true;
+		this.show_start = false;
 		this.startButton.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onGameStartButtonTap, this);
 	}
 	
 	private onAliveMessage():void
 	{
-		this.socket.broadcast("alive", this.params["uid"]);
+		var json = {"uid":this.params["uid"], "channel":this.params["channel"]};
+		var jsonstr = JSON.stringify(json);
+		this.socket.emit("alive", jsonstr);
 	}
 	
 	private timerFunc():void
@@ -337,7 +339,7 @@ class Main extends egret.DisplayObjectContainer{
 		this.txttimer.y = 50;
 		this.txttimer.width = 640;
 		this.txttimer.height = 100;
-		this.txttimer.text = "";
+		this.txttimer.text = "waiting for game start...";
 		this.txttimer.textAlign = egret.HorizontalAlign.CENTER;
 		this.txttimer.textColor = 0x0000ff;
 		this.addChild( this.txttimer );
