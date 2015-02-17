@@ -105,6 +105,8 @@ var Main = (function (_super) {
     };
     Main.prototype.alive = function (data) {
         var json = JSON.parse(data);
+        console.log(json);
+        this.uids = json;
         if (json.length > 0) {
             if (json[0] == this.params["uid"] && this.show_start) {
                 this.createStartButton();
