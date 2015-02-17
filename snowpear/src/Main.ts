@@ -126,12 +126,13 @@ class Main extends egret.DisplayObjectContainer{
 	public timeminus(data){
 		this.startButton.visible = false;
 		var json = JSON.parse(data);
-		this.txt.text = "game will start at "+ json["time"]+" seconds";
+		this.txttimer.text = "game will start at "+ json["time"]+" seconds";
 	}
 
 	public gamestart(data){
 		if(this.gameState == "r")
 			return;
+		this.txttimer.text = "";
 		this.gameState = "r";
 		console.log(data);
 		var json = JSON.parse(data);
@@ -162,7 +163,7 @@ class Main extends egret.DisplayObjectContainer{
 		var text:string = json.uid + " win!\n";
 		this.txt.text += text;
 		if(this.master_uid == this.params["uid"])
-			this.createStartTimer();
+				this.createStartTimer();
 	}
 
 	public selectAnimal(data){
@@ -295,6 +296,7 @@ class Main extends egret.DisplayObjectContainer{
 
 	//绘制文本
 	private  txt:egret.TextField;
+	private  txttimer:egret.TextField;
 	private drawText():void
 	{
 		this.txt = new egret.TextField();
@@ -307,6 +309,16 @@ class Main extends egret.DisplayObjectContainer{
 		this.txt.textAlign = egret.HorizontalAlign.CENTER;
 		this.txt.textColor = 0xff0000;
 		this.addChild( this.txt );
+		this.txttimer = new egret.TextField();
+		this.txttimer.size = 24;
+		this.txttimer.x = 0;
+		this.txttimer.y = 50;
+		this.txttimer.width = 640;
+		this.txttimer.height = 100;
+		this.txttimer.text = "";
+		this.txttimer.textAlign = egret.HorizontalAlign.CENTER;
+		this.txttimer.textColor = 0x00ff00;
+		this.addChild( this.txttimer );
 	}
 	/**
 	* 根据name关键字创建一个Bitmap对象。name属性请参考resources/resource.json配置文件的内容。

@@ -114,11 +114,12 @@ var Main = (function (_super) {
     Main.prototype.timeminus = function (data) {
         this.startButton.visible = false;
         var json = JSON.parse(data);
-        this.txt.text = "game will start at " + json["time"] + " seconds";
+        this.txttimer.text = "game will start at " + json["time"] + " seconds";
     };
     Main.prototype.gamestart = function (data) {
         if (this.gameState == "r")
             return;
+        this.txttimer.text = "";
         this.gameState = "r";
         console.log(data);
         var json = JSON.parse(data);
@@ -273,6 +274,16 @@ var Main = (function (_super) {
         this.txt.textAlign = egret.HorizontalAlign.CENTER;
         this.txt.textColor = 0xff0000;
         this.addChild(this.txt);
+        this.txttimer = new egret.TextField();
+        this.txttimer.size = 24;
+        this.txttimer.x = 0;
+        this.txttimer.y = 50;
+        this.txttimer.width = 640;
+        this.txttimer.height = 100;
+        this.txttimer.text = "";
+        this.txttimer.textAlign = egret.HorizontalAlign.CENTER;
+        this.txttimer.textColor = 0x00ff00;
+        this.addChild(this.txttimer);
     };
     /**
     * 根据name关键字创建一个Bitmap对象。name属性请参考resources/resource.json配置文件的内容。
