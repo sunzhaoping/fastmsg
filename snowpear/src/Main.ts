@@ -185,7 +185,7 @@ class Main extends egret.DisplayObjectContainer{
 		var json = JSON.parse(data);
 		if(json.uid == this.params["uid"])
 			this.gameState = "w"
-		var text:string = json.uid + " select " + json.animal + "\n";
+		var text:string = json.uid + " select " + json.animal + " "+ json.time + "\n";
 		this.current_select++;
 		this.txt.text += text;
 		if(this.uids[0] == this.params["uid"]){
