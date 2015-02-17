@@ -132,6 +132,8 @@ class Main extends egret.DisplayObjectContainer{
 		this.gameState = "r";
 		console.log(data);
 		var json = JSON.parse(data);
+		this.uids = json.uids;
+		console.log(this.uids);
 		this.master_uid = json.uid;
 		for(var i = 0 ; i < this.stageAnimals.length; i++)
 			this.removeChild(this.stageAnimals[i]);
@@ -271,7 +273,7 @@ class Main extends egret.DisplayObjectContainer{
 		var animals_target:string[] = this.animals.slice(0,3);
 		var animals_select = this.shuffle(animals_target);
 		var iTarget = Math.floor(Math.random() * 30) % 3
-		var json = {"uid":this.params["uid"], "animals": animals_select, "x":[160,320,480] , "y" : [480, 480, 480], "iTarget":[iTarget==0, iTarget==1, iTarget==2]};
+		var json = {"uid":this.params["uid"],"uids":this.uids, "animals": animals_select, "x":[160,320,480] , "y" : [480, 480, 480], "iTarget":[iTarget==0, iTarget==1, iTarget==2]};
 		var jsonstr = JSON.stringify(json);
 		this.socket.broadcast("gamestart", jsonstr);
 		this.gamestart(jsonstr);
