@@ -154,7 +154,7 @@ var Main = (function (_super) {
             return;
         var json = JSON.parse(data);
         if (json.uid == this.params["uid"])
-            this.gameState == "w";
+            this.gameState = "w";
         var text = json.uid + " select " + json.animal + "\n";
         this.current_select++;
         this.txt.text += text;
