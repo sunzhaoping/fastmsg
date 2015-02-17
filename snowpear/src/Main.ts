@@ -111,10 +111,6 @@ class Main extends egret.DisplayObjectContainer{
 		this.uids.push(data);
 		console.log(data.toString() + " join");
 	}
-	
-	private logintime(data){
-		var json = JSON.parse(data);
-	}
 
 	private onLeave(data){
 		var i : number = this.uids.indexOf(data);
@@ -130,9 +126,9 @@ class Main extends egret.DisplayObjectContainer{
 	}
 
 	public gamestart(data){
+		this.txttimer.text = "";
 		if(this.gameState == "r")
 			return;
-		this.txttimer.text = "";
 		this.gameState = "r";
 		console.log(data);
 		var json = JSON.parse(data);
@@ -160,7 +156,9 @@ class Main extends egret.DisplayObjectContainer{
 			return;
 		this.gameState = "e";
 		var json = JSON.parse(data);
-		var text:string = json.uid + " win!\n";
+		
+		var text:string = "";
+		if (json.uid != "" ) text = json.uid + " win!\n";
 		this.txt.text += text;
 		if(this.master_uid == this.params["uid"])
 				this.createStartTimer();
@@ -282,6 +280,7 @@ class Main extends egret.DisplayObjectContainer{
 	private onGameStartButtonTap(evt: egret.TouchEvent):void
 	{
 		this.master_uid = this.params["uid"];
+		this.startButton.touchEnabled = false;
 		this.createStartTimer();
 	}
 

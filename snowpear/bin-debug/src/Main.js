@@ -102,9 +102,6 @@ var Main = (function (_super) {
         this.uids.push(data);
         console.log(data.toString() + " join");
     };
-    Main.prototype.logintime = function (data) {
-        var json = JSON.parse(data);
-    };
     Main.prototype.onLeave = function (data) {
         var i = this.uids.indexOf(data);
         if (i >= 0)
@@ -117,9 +114,9 @@ var Main = (function (_super) {
         this.txttimer.text = "game will start at " + json["time"] + " seconds";
     };
     Main.prototype.gamestart = function (data) {
+        this.txttimer.text = "";
         if (this.gameState == "r")
             return;
-        this.txttimer.text = "";
         this.gameState = "r";
         console.log(data);
         var json = JSON.parse(data);
@@ -145,7 +142,9 @@ var Main = (function (_super) {
             return;
         this.gameState = "e";
         var json = JSON.parse(data);
-        var text = json.uid + " win!\n";
+        var text = "";
+        if (json.uid != "")
+            text = json.uid + " win!\n";
         this.txt.text += text;
         if (this.master_uid == this.params["uid"])
             this.createStartTimer();
@@ -253,6 +252,7 @@ var Main = (function (_super) {
     };
     Main.prototype.onGameStartButtonTap = function (evt) {
         this.master_uid = this.params["uid"];
+        this.startButton.touchEnabled = false;
         this.createStartTimer();
     };
     /**
