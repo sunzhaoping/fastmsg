@@ -317,7 +317,7 @@ class Main extends egret.DisplayObjectContainer{
 		this.txttimer.height = 100;
 		this.txttimer.text = "";
 		this.txttimer.textAlign = egret.HorizontalAlign.CENTER;
-		this.txttimer.textColor = 0x00ff00;
+		this.txttimer.textColor = 0x0000ff;
 		this.addChild( this.txttimer );
 	}
 	/**
