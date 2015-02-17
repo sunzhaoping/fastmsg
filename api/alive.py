@@ -37,5 +37,8 @@ class Service(BaseService):
             uids = []
         if uid not in uids:
             uids.append(uid)
+            
+        if self.connection.channel != channel:
             self.connection.join(channel)
+
         raise gen.Return(tornado.escape.json_encode(uids))

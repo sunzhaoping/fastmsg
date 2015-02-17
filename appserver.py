@@ -29,8 +29,8 @@ class ChannelHandler(SockJSConnection):
 
     def on_close(self):
         self.unsub(self.channel)
-        self.channel_emit(self.channel, "leave" , self.uid)
         self.remove_uid(self.channel,self.uid)
+        self.channel_emit(self.channel, "leave" , self.uid)
 
     @gen.coroutine
     def on_message(self, msg):
