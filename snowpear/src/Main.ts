@@ -116,7 +116,6 @@ class Main extends egret.DisplayObjectContainer{
 	
 	private alive(data){
 		var json = JSON.parse(data);
-		console.log(json);
 		this.uids = json;
 		if(json.length > 0){
 			if(json[0] == this.params["uid"] && this.show_start){
