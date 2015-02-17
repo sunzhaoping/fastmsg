@@ -60,7 +60,10 @@ var Main = (function (_super) {
         this.socket.on('gameend', this.gameend.bind(this));
         this.socket.on('selectAnimal', this.selectAnimal.bind(this));
         this.socket.on('timeminus', this.timeminus.bind(this));
+        this.socket.on('alive', this.alive.bind(this));
         this.addEventListener(egret.Event.ADDED_TO_STAGE, this.onAddToStage, this);
+        this.alive_timer = new egret.Timer(1000, 0);
+        this.alive_timer.addEventListener(egret.TimerEvent.TIMER, this.onAliveMessage, this);
     }
     Main.prototype.GetRequest = function () {
         var url = location.search; //获取url中"?"符后的字串
@@ -95,11 +98,23 @@ var Main = (function (_super) {
     Main.prototype.onLogin = function (data) {
         if (this.params["channel"]) {
             this.socket.emit("join", this.params["channel"]);
+            this.alive_timer.start();
+        }
+    };
+    Main.prototype.alive = function (data) {
+        var i = this.uids.indexOf(data);
+        if (i < 0) {
+            this.uids.push(data);
+            if (data == this.params["uid"])
+                this.socket.emit("join", this.params["channel"]);
         }
     };
     Main.prototype.onJoin = function (data) {
-        this.uids.push(data);
-        console.log(data.toString() + " join");
+        var i = this.uids.indexOf(data);
+        if (i < 0) {
+            this.uids.push(data);
+            console.log(data.toString() + " join");
+        }
     };
     Main.prototype.onLeave = function (data) {
         var i = this.uids.indexOf(data);
@@ -232,6 +247,9 @@ var Main = (function (_super) {
         this.addChild(this.startButton);
         this.startButton.touchEnabled = true;
         this.startButton.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onGameStartButtonTap, this);
+    };
+    Main.prototype.onAliveMessage = function () {
+        this.socket.broadcast("alive", this.params["uid"]);
     };
     Main.prototype.timerFunc = function () {
         this.start_time--;

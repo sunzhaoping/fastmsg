@@ -42,6 +42,7 @@ class Main extends egret.DisplayObjectContainer{
 	private current_winner:string = "";
 	private current_wintime:number = 0;
 	private current_select:number = 0;
+	private alive_timer:egret.Timer;
 	private GetRequest(): Object{
 		var url = location.search; //获取url中"?"符后的字串
 		var theRequest:Object = new Object();
@@ -92,8 +93,13 @@ class Main extends egret.DisplayObjectContainer{
 		this.socket.on('gameend', this.gameend.bind(this));
 		this.socket.on('selectAnimal', this.selectAnimal.bind(this));
 		this.socket.on('timeminus', this.timeminus.bind(this));
+		this.socket.on('alive', this.alive.bind(this));
 		this.addEventListener(egret.Event.ADDED_TO_STAGE,this.onAddToStage,this);
+		this.alive_timer = new egret.Timer(1000,0);
+		this.alive_timer.addEventListener(egret.TimerEvent.TIMER,this.onAliveMessage,this);
+		
 	}
+	
 	
 	private onConnect(data){
 		if (this.params["uid"])
@@ -103,12 +109,25 @@ class Main extends egret.DisplayObjectContainer{
 	private onLogin(data){
 		if (this.params["channel"]){
 			this.socket.emit("join", this.params["channel"]);
+			this.alive_timer.start();
+		}
+	}
+	
+	private alive(data){
+		var i : number = this.uids.indexOf(data);
+		if(i < 0){
+			this.uids.push(data);
+			if(data == this.params["uid"])
+				this.socket.emit("join", this.params["channel"]);
 		}
 	}
 
 	private onJoin(data){
-		this.uids.push(data);
-		console.log(data.toString() + " join");
+		var i : number = this.uids.indexOf(data);
+		if(i < 0){
+			this.uids.push(data);
+			console.log(data.toString() + " join");
+		}
 	}
 
 	private onLeave(data){
@@ -254,6 +273,11 @@ class Main extends egret.DisplayObjectContainer{
 		this.addChild(this.startButton);
 		this.startButton.touchEnabled = true;
 		this.startButton.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onGameStartButtonTap, this);
+	}
+	
+	private onAliveMessage():void
+	{
+		this.socket.broadcast("alive", this.params["uid"]);
 	}
 	
 	private timerFunc():void
