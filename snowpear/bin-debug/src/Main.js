@@ -40,7 +40,6 @@ var Main = (function (_super) {
         this.gameState = "";
         this.stageAnimals = [];
         this.start_time = 5;
-        this.master_uid = "";
         this.current_targert = "";
         this.current_winner = "";
         this.current_wintime = 0;
@@ -122,7 +121,6 @@ var Main = (function (_super) {
         var json = JSON.parse(data);
         this.uids = json.uids;
         console.log(this.uids);
-        this.master_uid = json.uid;
         for (var i = 0; i < this.stageAnimals.length; i++)
             this.removeChild(this.stageAnimals[i]);
         for (var i = 0; i < 3; i++) {
@@ -148,7 +146,7 @@ var Main = (function (_super) {
         if (json.uid != "")
             text = json.uid + " win!\n";
         this.txt.text += text;
-        if (this.master_uid == this.params["uid"])
+        if (this.uids[0] == this.params["uid"])
             this.createStartTimer();
     };
     Main.prototype.selectAnimal = function (data) {
@@ -160,7 +158,7 @@ var Main = (function (_super) {
         var text = json.uid + " select " + json.animal + "\n";
         this.current_select++;
         this.txt.text += text;
-        if (this.master_uid == this.params["uid"]) {
+        if (this.uids[0] == this.params["uid"]) {
             if (json.animal == this.current_targert && (this.current_wintime == 0 || this.current_wintime > json.time)) {
                 this.current_winner = json.uid;
                 this.current_wintime = json.time;
@@ -253,7 +251,6 @@ var Main = (function (_super) {
         this.gamestart(jsonstr);
     };
     Main.prototype.onGameStartButtonTap = function (evt) {
-        this.master_uid = this.params["uid"];
         this.startButton.touchEnabled = false;
         this.createStartTimer();
     };

@@ -38,7 +38,6 @@ class Main extends egret.DisplayObjectContainer{
 	private stageAnimals: egret.Sprite[] = [];
 	private startButton: egret.Sprite;
 	private start_time: number = 5;
-	private master_uid:string = "";
 	private current_targert:string = "";
 	private current_winner:string = "";
 	private current_wintime:number = 0;
@@ -134,7 +133,6 @@ class Main extends egret.DisplayObjectContainer{
 		var json = JSON.parse(data);
 		this.uids = json.uids;
 		console.log(this.uids);
-		this.master_uid = json.uid;
 		for(var i = 0 ; i < this.stageAnimals.length; i++)
 			this.removeChild(this.stageAnimals[i]);
 		for(var i = 0 ; i <3; i++){
@@ -162,7 +160,7 @@ class Main extends egret.DisplayObjectContainer{
 		var text:string = "";
 		if (json.uid != "" ) text = json.uid + " win!\n";
 		this.txt.text += text;
-		if(this.master_uid == this.params["uid"])
+		if(this.uids[0] == this.params["uid"])
 				this.createStartTimer();
 	}
 
@@ -175,7 +173,7 @@ class Main extends egret.DisplayObjectContainer{
 		var text:string = json.uid + " select " + json.animal + "\n";
 		this.current_select++;
 		this.txt.text += text;
-		if(this.master_uid == this.params["uid"]){
+		if(this.uids[0] == this.params["uid"]){
 			if(json.animal == this.current_targert && (this.current_wintime == 0 || this.current_wintime > json.time)){
 				this.current_winner = json.uid;
 				this.current_wintime = json.time;
@@ -281,7 +279,6 @@ class Main extends egret.DisplayObjectContainer{
 	
 	private onGameStartButtonTap(evt: egret.TouchEvent):void
 	{
-		this.master_uid = this.params["uid"];
 		this.startButton.touchEnabled = false;
 		this.createStartTimer();
 	}
