@@ -161,6 +161,8 @@ class Main extends egret.DisplayObjectContainer{
 		var json = JSON.parse(data);
 		var text:string = json.uid + " win!\n";
 		this.txt.text += text;
+		if(this.master_uid == this.params["uid"])
+			this.createStartTimer();
 	}
 
 	public selectAnimal(data){

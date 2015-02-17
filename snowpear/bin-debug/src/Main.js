@@ -146,6 +146,8 @@ var Main = (function (_super) {
         var json = JSON.parse(data);
         var text = json.uid + " win!\n";
         this.txt.text += text;
+        if (this.master_uid == this.params["uid"])
+            this.createStartTimer();
     };
     Main.prototype.selectAnimal = function (data) {
         if (this.gameState == "e" || this.gameState == "w")
