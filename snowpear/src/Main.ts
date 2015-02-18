@@ -32,6 +32,7 @@ class Main extends egret.DisplayObjectContainer{
 	public socket:Socket;
 	public params:Object;
 	private uids :string[] = [];
+	private start_uids :string[] = [];
 	private color_define : Number = 0xff0000;
 	private animals:string[] = ["bear","beaver","cat","cow","dog","elephant","elk","ghost","giraffe","gnu","goat","hippo","kangaroo","monkey","mouse","owl","penguin","pig","sheep","squirrel","zebra"]
 	public  gameState:string = ""; 
@@ -151,8 +152,8 @@ class Main extends egret.DisplayObjectContainer{
 			return;
 		this.gameState = "r";
 		var json = JSON.parse(data);
-		this.uids = json.uids;
-		console.log(this.uids);
+		this.start_uids = json.uids;
+		console.log(this.start_uids);
 		for(var i = 0 ; i < this.stageAnimals.length; i++)
 			this.removeChild(this.stageAnimals[i]);
 		for(var i = 0 ; i <3; i++){
@@ -193,7 +194,7 @@ class Main extends egret.DisplayObjectContainer{
 				this.current_winner = json.uid;
 				this.current_wintime = json.time;
 			}
-			if(this.current_select >= this.uids.length){
+			if(this.current_select >= this.start_uids.length){
 				var json:any = {"uid":this.current_winner};
 				var jsonstr = JSON.stringify(json);
 				this.socket.broadcast("gameend", jsonstr);

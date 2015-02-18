@@ -35,6 +35,7 @@ var Main = (function (_super) {
     function Main() {
         _super.call(this);
         this.uids = [];
+        this.start_uids = [];
         this.color_define = 0xff0000;
         this.animals = ["bear", "beaver", "cat", "cow", "dog", "elephant", "elk", "ghost", "giraffe", "gnu", "goat", "hippo", "kangaroo", "monkey", "mouse", "owl", "penguin", "pig", "sheep", "squirrel", "zebra"];
         this.gameState = "";
@@ -136,8 +137,8 @@ var Main = (function (_super) {
             return;
         this.gameState = "r";
         var json = JSON.parse(data);
-        this.uids = json.uids;
-        console.log(this.uids);
+        this.start_uids = json.uids;
+        console.log(this.start_uids);
         for (var i = 0; i < this.stageAnimals.length; i++)
             this.removeChild(this.stageAnimals[i]);
         for (var i = 0; i < 3; i++) {
@@ -176,7 +177,7 @@ var Main = (function (_super) {
                 this.current_winner = json.uid;
                 this.current_wintime = json.time;
             }
-            if (this.current_select >= this.uids.length) {
+            if (this.current_select >= this.start_uids.length) {
                 var json = { "uid": this.current_winner };
                 var jsonstr = JSON.stringify(json);
                 this.socket.broadcast("gameend", jsonstr);
