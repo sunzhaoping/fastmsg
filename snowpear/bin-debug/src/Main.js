@@ -149,6 +149,7 @@ var Main = (function (_super) {
                 this.current_targert = json.animals[i];
             }
         }
+        this.txtResult.text = "";
         this.current_winner = "";
         this.current_wintime = 0;
         this.current_select = 0;
@@ -165,7 +166,7 @@ var Main = (function (_super) {
         var text = "";
         if (json.uid != "")
             text = json.uid + " win!\n";
-        this.txt.text += text;
+        this.txtResult.text = text;
         if (this.uids[0] == this.params["uid"])
             this.createStartTimer();
     };
@@ -307,6 +308,16 @@ var Main = (function (_super) {
         this.txttimer.textAlign = egret.HorizontalAlign.CENTER;
         this.txttimer.textColor = 0x0000ff;
         this.addChild(this.txttimer);
+        this.txtResult = new egret.TextField();
+        this.txtResult.size = 24;
+        this.txtResult.x = 0;
+        this.txtResult.y = 640;
+        this.txtResult.width = 640;
+        this.txtResult.height = 100;
+        this.txtResult.text = "";
+        this.txtResult.textAlign = egret.HorizontalAlign.CENTER;
+        this.txtResult.textColor = 0xff0000;
+        this.addChild(this.txtResult);
     };
     /**
     * 根据name关键字创建一个Bitmap对象。name属性请参考resources/resource.json配置文件的内容。
