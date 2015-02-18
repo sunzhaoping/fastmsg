@@ -164,8 +164,10 @@ var Main = (function (_super) {
         this.gameState = "e";
         var json = JSON.parse(data);
         var text = "";
-        if (json.uid != "")
-            text = json.uid + " win!\n";
+        if (json.uid != "" && json.uid == this.params["uid"])
+            text = "you win!\n";
+        else
+            text = "you lose!\n";
         this.txtResult.text = text;
         if (this.uids[0] == this.params["uid"])
             this.createStartTimer();
