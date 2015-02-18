@@ -43,6 +43,8 @@ class Main extends egret.DisplayObjectContainer{
 	private current_winner:string = "";
 	private current_wintime:number = 0;
 	private current_select:number = 0;
+	private current_time:number = 0;
+	private current_local_time:number = 0;
 	private alive_timer:egret.Timer;
 	private show_start:boolean = true;
 	private GetRequest(): Object{
@@ -165,6 +167,8 @@ class Main extends egret.DisplayObjectContainer{
 		this.current_winner = "";
 		this.current_wintime = 0;
 		this.current_select = 0;
+		this.current_time = json.current_time;
+		this.current_local_time = new Date().getTime();
 		this.stageAnimals.length = 0;
 		this.stageAnimals.push(this.createAnimalByName(json.animals[0], json.x[0], json.y[0],json.iTarget[0]));
 		this.stageAnimals.push(this.createAnimalByName(json.animals[1], json.x[1], json.y[1],json.iTarget[1]));
@@ -186,13 +190,14 @@ class Main extends egret.DisplayObjectContainer{
 		var json = JSON.parse(data);
 		if(json.uid == this.params["uid"])
 			this.gameState = "w"
-		var text:string = json.uid + " select " + json.animal + " "+ json.time + "\n";
+		var endTime = new Date().getTime() - this.current_local_time + this.current_time;
+		var text:string = json.uid + " select " + json.animal + " "+ endTime + "\n";
 		this.current_select++;
 		this.txt.text += text;
 		if(this.uids[0] == this.params["uid"]){
-			if(json.animal == this.current_targert && (this.current_wintime == 0 || this.current_wintime > json.time)){
+			if(json.animal == this.current_targert && (this.current_wintime == 0 || this.current_wintime > endTime)){
 				this.current_winner = json.uid;
-				this.current_wintime = json.time;
+				this.current_wintime = endTime;
 			}
 			if(this.current_select >= this.start_uids.length){
 				var json:any = {"uid":this.current_winner};
@@ -281,7 +286,8 @@ class Main extends egret.DisplayObjectContainer{
 	private timerFunc():void
 	{
 		this.start_time--;
-		var json = {"uid":this.params["uid"], "time":this.start_time};
+		var time = new Date().getTime();
+		var json = {"uid":this.params["uid"], "time":this.start_time, "current_time": time};
 		var jsonstr = JSON.stringify(json);
 		this.socket.broadcast("timeminus", jsonstr);
 		this.timeminus(jsonstr);
@@ -292,8 +298,9 @@ class Main extends egret.DisplayObjectContainer{
 		this.animals = this.shuffle(this.animals);
 		var animals_target:string[] = this.animals.slice(0,3);
 		var animals_select = this.shuffle(animals_target);
-		var iTarget = Math.floor(Math.random() * 30) % 3
-		var json = {"uid":this.params["uid"],"uids":this.uids, "animals": animals_select, "x":[160,320,480] , "y" : [480, 480, 480], "iTarget":[iTarget==0, iTarget==1, iTarget==2]};
+		var iTarget = Math.floor(Math.random() * 30) % 3;
+		var time = new Date().getTime();
+		var json = {"uid":this.params["uid"],"uids":this.uids, "animals": animals_select, "x":[160,320,480] , "y" : [480, 480, 480], "iTarget":[iTarget==0, iTarget==1, iTarget==2], "current_time": time};
 		var jsonstr = JSON.stringify(json);
 		this.socket.broadcast("gamestart", jsonstr);
 		this.gamestart(jsonstr);
