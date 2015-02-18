@@ -33,7 +33,7 @@ var Animal = (function (_super) {
         if (this.root_main.gameState != "r") {
             return;
         }
-        var time = new Date().getTime();
+        var time = new Date().getTime() - this.root_main.current_local_time + this.root_main.current_time;
         var json = { "uid": this.root_main.params["uid"], "animal": this.animal_name, "time": time };
         var jsonstr = JSON.stringify(json);
         egret.Tween.get(this).to({ alpha: 0.2 }, 100);

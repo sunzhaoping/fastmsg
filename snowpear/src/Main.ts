@@ -43,8 +43,8 @@ class Main extends egret.DisplayObjectContainer{
 	private current_winner:string = "";
 	private current_wintime:number = 0;
 	private current_select:number = 0;
-	private current_time:number = 0;
-	private current_local_time:number = 0;
+	public current_time:number = 0;
+	public current_local_time:number = 0;
 	private alive_timer:egret.Timer;
 	private show_start:boolean = true;
 	private GetRequest(): Object{
@@ -190,14 +190,13 @@ class Main extends egret.DisplayObjectContainer{
 		var json = JSON.parse(data);
 		if(json.uid == this.params["uid"])
 			this.gameState = "w"
-		var endTime = new Date().getTime() - this.current_local_time + this.current_time;
-		var text:string = json.uid + " select " + json.animal + " "+ endTime + "\n";
+		var text:string = json.uid + " select " + json.animal + " "+ json.time + "\n";
 		this.current_select++;
 		this.txt.text += text;
 		if(this.uids[0] == this.params["uid"]){
-			if(json.animal == this.current_targert && (this.current_wintime == 0 || this.current_wintime > endTime)){
+			if(json.animal == this.current_targert && (this.current_wintime == 0 || this.current_wintime > json.time)){
 				this.current_winner = json.uid;
-				this.current_wintime = endTime;
+				this.current_wintime = json.time;
 			}
 			if(this.current_select >= this.start_uids.length){
 				var json:any = {"uid":this.current_winner};

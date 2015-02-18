@@ -173,14 +173,13 @@ var Main = (function (_super) {
         var json = JSON.parse(data);
         if (json.uid == this.params["uid"])
             this.gameState = "w";
-        var endTime = new Date().getTime() - this.current_local_time + this.current_time;
-        var text = json.uid + " select " + json.animal + " " + endTime + "\n";
+        var text = json.uid + " select " + json.animal + " " + json.time + "\n";
         this.current_select++;
         this.txt.text += text;
         if (this.uids[0] == this.params["uid"]) {
-            if (json.animal == this.current_targert && (this.current_wintime == 0 || this.current_wintime > endTime)) {
+            if (json.animal == this.current_targert && (this.current_wintime == 0 || this.current_wintime > json.time)) {
                 this.current_winner = json.uid;
-                this.current_wintime = endTime;
+                this.current_wintime = json.time;
             }
             if (this.current_select >= this.start_uids.length) {
                 var json = { "uid": this.current_winner };
